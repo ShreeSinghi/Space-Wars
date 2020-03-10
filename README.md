@@ -11,3 +11,5 @@ External libraries used: Numpy and PIL
 Works for Python 3.6 or greater
 
 Audio only works on Windows platforms
+
+![Screenshot of gameplay](https://imgur.com/a/ghyo5wt)
