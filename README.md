@@ -7,5 +7,7 @@ Also bullets collide and annhilate each other.
 The code is such that the game automatically scales itself according to almost any screen size
 
 External libraries used: Numpy and PIL
+
 Works for Python 3.6 or greater
+
 Audio only works on Windows platforms
