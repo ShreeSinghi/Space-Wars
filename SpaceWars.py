@@ -1,8 +1,5 @@
 """
-import winsound
-winsound.PlaySound('sound.wav',winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
-
-Add sound
+winsound.PlaySound('sound.wav', tags)
 
 Meteor attacks from front/back
 Meteor attacks l/r (create black bars)
@@ -15,11 +12,19 @@ from tkinter import mainloop, Canvas, Tk
 from PIL import Image, ImageTk
 from ctypes import windll
 from random import gauss, randint, uniform, choice
-from math import sin, cos, atan, radians, ceil
+from math import sin, cos, radians, ceil
 from time import sleep
 from numpy import sign
 import numpy as np
-clip = np.clip
+from numpy import clip
+
+tags =  winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NOSTOP
+
+def playsound(name, tag):
+    try:
+        winsound.PlaySound(name, tag)
+    except Exception:
+        pass
 
 def conv(*args):
     global ratio, shift
@@ -272,6 +277,10 @@ class ship:
     def beam(self):
         global ldivs
         self.beaming = True
+        
+        if self.beamframes == 0:
+            playsound('buzz.wav', tags | winsound.SND_LOOP)
+        
         if self.beamframes<10:      #initialize beams
             for i in range(ceil(self.beamframes/10*ldivs)):
                 cv.itemconfig(f'laser{i}', state='normal')
@@ -294,7 +303,10 @@ class ship:
             self.beamframes = 0
             self.active = False
             self.beaming = False
+ 
+            playsound(None, 0)
             return
+        
         self.beamframes += 1
         
     def heal(self):
@@ -306,7 +318,9 @@ class ship:
         cv.itemconfig(f'heart{self.health}', state='hidden')
         cv.itemconfig('laser', state='hidden')
         self.health -= 1
-        scrhealth -= 1 
+        scrhealth -= 1
+        playsound(None, 0)
+        playsound('explosion.wav', tags)
         
         if self.health==0:
             gameover = True
@@ -325,6 +339,9 @@ class ship:
             
     def shoot(self):
         global shootcool
+        
+        playsound('laser.wav', tags)
+
         self.power -= 1
         self.drawpower()
         self.yvel += 1
@@ -479,11 +496,15 @@ class ufo:
             yvel += sign(self.y-meteor.y)*self.speed
             
         elif abs(self.x-player.x)>50:
-            if not randint(0,10):
+            if not randint(0,15):
                 xvel += sign(player.x-self.x)*self.speed
                 yvel += self.dir*self.speed
-        elif randint(0,5):
-            shoot = True
+        else:
+            if randint(0,5):    shoot = True
+            
+            self.xvel += uniform(-1, 1)*self.speed
+            self.yvel += uniform(0, 1)*self.speed*self.dir
+
 
         mx, my = (-1000,-1000) if not meteor else (meteor.x,meteor.y)
         if (abs(self.x-mx)<50 and self.y<my and meteor.yvel<0) or not randint(0,50):
@@ -495,12 +516,17 @@ class ufo:
         return xvel, yvel, shoot
 
     def kill(self):
+        global player
         aliens.remove(self)
         cv.delete(self.sprite)
         rand = randint(50,950)
         while abs(rand-player.x)<300 and player.beaming:
             rand = randint(50,950)
+            
         aliens.append(ufo(randint(50,950)))
+        
+        if player.score%7 == 0:
+            aliens.append(ufo(randint(50,950)))
         
     def shoot(self):
         self.lastshot = alcool
@@ -594,9 +620,9 @@ def gameinit():
     # Create Gaming Canvas
     cv.create_rectangle(*conv(-3,0,0,1000), fill='gray', outline='')
     cv.create_rectangle(*conv(1000,0,1003,1000), fill='gray', outline='')
-    cv.create_text(swidth-shift/2, sheight-15,
+    cv.create_text(swidth-shift/2, sheight-60,
                    font=('Century Gothic', int(12*ratio)),
-                   anchor='center', text='Created by Shree Singhi', fill='white')
+                   anchor='center', text='Created by Shree Singhi\nsinghishree@gmail.com', fill='white')
     
     # Initialize global variables
     gameover = False
@@ -617,7 +643,7 @@ def gameinit():
     
     # Create objects
     background = stars(100)
-    aliens = [ufo(500), ufo(250), ufo(750)]
+    aliens = [ufo(250), ufo(750)]
     albulls= []
     scrhearts = []
     player = ship(500, 800, (65,68,83,87,186,222))
