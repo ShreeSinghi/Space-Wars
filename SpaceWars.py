@@ -1,15 +1,25 @@
 """
-winsound.PlaySound('sound.wav', tags)
 
 Meteor attacks from front/back
 Meteor attacks l/r (create black bars)
 Meteor targets player
 
 """
-
-import winsound       
+try:
+    import winsound       
+except Exception:
+    class dummyClass:
+        def __init__(self):
+            self.SND_FILENAME = self.SND_ASYNC = self.SND_NOSTOP = self.SND_LOOP = 0
+            
+        def PlaySound(self, foo, bar):
+            pass
+    
+    winsound = dummyClass()
+    
 from tkinter import mainloop, Canvas, Tk
 from PIL import Image, ImageTk
+
 from ctypes import windll
 from random import gauss, randint, uniform, choice
 from math import sin, cos, radians, ceil
@@ -279,7 +289,7 @@ class ship:
         self.beaming = True
         
         if self.beamframes == 0:
-            playsound('buzz.wav', tags | winsound.SND_LOOP)
+            playsound('audio/buzz.wav', tags | winsound.SND_LOOP)
         
         if self.beamframes<10:      #initialize beams
             for i in range(ceil(self.beamframes/10*ldivs)):
@@ -320,7 +330,7 @@ class ship:
         self.health -= 1
         scrhealth -= 1
         playsound(None, 0)
-        playsound('explosion.wav', tags)
+        playsound('audio/explosion.wav', tags)
         
         if self.health==0:
             gameover = True
@@ -340,7 +350,7 @@ class ship:
     def shoot(self):
         global shootcool
         
-        playsound('laser.wav', tags)
+        playsound('audio/laser.wav', tags)
 
         self.power -= 1
         self.drawpower()
@@ -481,7 +491,7 @@ class ufo:
         xvel, yvel = self.xvel, self.yvel
         
         if player.beaming and abs(player.x-self.x)<150:
-            xvel += sign(self.x-player.x)*self.speed*0.2
+            xvel += sign(self.x-player.x)*self.speed
             yvel += self.dir*self.speed
         
         elif shoot:
@@ -500,7 +510,7 @@ class ufo:
                 xvel += sign(player.x-self.x)*self.speed
                 yvel += self.dir*self.speed
         else:
-            if randint(0,5):    shoot = True
+            if not randint(0,5):    shoot = True
             
             self.xvel += uniform(-1, 1)*self.speed
             self.yvel += uniform(0, 1)*self.speed*self.dir
@@ -678,7 +688,7 @@ def menuinit():
     cv.create_text(*conv(100, 220), font=('Consolas', int(25*ratio)),
                    text='Aliens will drop this occasionally\n'
                         'USE IT TO SHOOT A BLOODY BEAM THAT\n'
-                        'ANNHILATES ALL OF HUMANITY', fill='white', anchor='w')
+                        'ANNIHILATES ALL OF HUMANITY', fill='white', anchor='w')
     cv.create_text(*conv(500, 600), text='Move using WASD, and shoot using the ; key\n'
                                        '    Use the death beam with the \' key',
                    font=('Consolas', int(35*ratio)), fill='white', anchor='center')
@@ -713,16 +723,16 @@ def screeninit():
     cv.pack()
     
     # Create image files
-    temp     = [resize('ship2.png', 0.15*ratio, angle) for angle in range(-15,16)]
+    temp     = [resize('images/ship2.png', 0.15*ratio, angle) for angle in range(-15,16)]
     shipimgs = dict(zip(list(range(-15,16)), temp))
-    heartimg = resize('heart.png', 1.1*ratio)
-    bheartimg= resize('heart.png', 2*ratio)
+    heartimg = resize('images/heart.png', 1.1*ratio)
+    bheartimg= resize('images/heart.png', 2*ratio)
     bombimgs = [resize(f'bomb\ ({i}).gif', 0.2*ratio, 0) for i in range(1,8)]
-    rockimgs = [resize('smallrock.png', 0.7*ratio, angle) for angle in range(0,360,36)]
-    temp     = [resize('alien.png', 0.7*ratio, angle) for angle in range(-15,16)]
+    rockimgs = [resize('images/smallrock.png', 0.7*ratio, angle) for angle in range(0,360,36)]
+    temp     = [resize('images/alien.png', 0.7*ratio, angle) for angle in range(-15,16)]
     alienimgs= dict(zip(list(range(-15,16)), temp))
-    yodudeimg= resize('yodude.png', 2*ratio, 0)
-    goverimg = resize('endgame.png', 2*ratio, 0)
+    yodudeimg= resize('images/yodude.png', 2*ratio, 0)
+    goverimg = resize('images/endgame.png', 2*ratio, 0)
     del temp
 
 screeninit()
