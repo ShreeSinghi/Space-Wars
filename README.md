@@ -12,4 +12,4 @@ Works for Python 3.6 or greater
 
 Audio only works on Windows platforms
 
-![Screenshot of gameplay](https://imgur.com/MuFHMJm)
+![Screenshot of gameplay](https://imgur.com/MuFHMJm.png)
