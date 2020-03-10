@@ -456,7 +456,7 @@ class ufo:
         self.entry = True
         self.x, self.y = x, -200
         self.angle = 0
-        self.speed = 5
+        self.speed = 3
         self.dir = randint(0,1)*2-1
         self.lastshot = 0
         self.xvel = self.yvel = 0
@@ -510,7 +510,7 @@ class ufo:
                 xvel += sign(player.x-self.x)*self.speed
                 yvel += self.dir*self.speed
         else:
-            if not randint(0,5):    shoot = True
+#             if not randint(0,5):    shoot = True
             
             self.xvel += uniform(-1, 1)*self.speed
             self.yvel += uniform(0, 1)*self.speed*self.dir
